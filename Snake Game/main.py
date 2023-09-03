@@ -6,18 +6,13 @@ from scoreboard import ScoreBoard
 from wall import Wall
 import tkinter as tk
 
-BEST_SCORE = 0
-
 def start_game(level, root_start):
-    global BEST_SCORE
     root_start.destroy() 
-
     screen = Screen() 
     screen.setup(680, 710)
     screen.bgcolor("black")
     screen.title("Snake Game")
     screen.tracer(0)    
-    
     wall = Wall()
     if level == "Easy":
         wall.easy_level()
@@ -26,9 +21,9 @@ def start_game(level, root_start):
     else:
         wall.hard_level()
     scoreboard = ScoreBoard()
+    scoreboard.load_high_score(level)
     snake = Snake(level)
     food = Food(level)
-    
     screen.listen()
     screen.onkey(snake.up, "Up")
     screen.onkey(snake.left, "Left")
@@ -51,22 +46,18 @@ def start_game(level, root_start):
         # Detect collision with wall.
         for i in wall.walls[:]:
             if snake.head.distance(i) < 19:
-                if scoreboard.score > BEST_SCORE:
-                    BEST_SCORE = scoreboard.score
+                scoreboard.save_high_score(level)
                 game_is_on = False
-                scoreboard.game_over()
                 screen.clear()
-                restart_screen(BEST_SCORE, scoreboard.score)
+                restart_screen(scoreboard.high_score, scoreboard.score)
 
         # Detect collision with tail.
         for segment in snake.segments[1:]:
             if snake.head.distance(segment) < 10:
-                if scoreboard.score > BEST_SCORE:
-                    BEST_SCORE = scoreboard.score
+                scoreboard.save_high_score(level)
                 game_is_on = False
-                scoreboard.game_over()
                 screen.clear()
-                restart_screen(BEST_SCORE, scoreboard.score)
+                restart_screen(scoreboard.high_score, scoreboard.score)
 
     screen.exitonclick()
 
